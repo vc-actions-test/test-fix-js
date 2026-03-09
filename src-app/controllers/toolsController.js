@@ -1,5 +1,6 @@
 const process = require('child_process');
 const fortuneRiddle = require('../utils/fortuneData.js');
+const { execFileSync } = require('child_process');
 
 // Loads tools page
 function showTools(req, res) {
@@ -34,7 +35,9 @@ async function ping(host) {
             reject(output);
         }, 5000);
         try {
-            let pingProcess = process.spawn('ping', ['-c', '1', host]);
+const allowedCommands = ['ping'];
+let [pingCmd, ...pingRestArgs] = ['ping', '-c', '1', host];
+let pingProcess = allowedCommands.includes(pingCmd) && process.execFileSync(pingCmd, pingRestArgs);
             pingProcess.stdout.on('data', (data) => {
                 output += data.toString();
             });
