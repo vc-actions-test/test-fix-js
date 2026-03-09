@@ -1,5 +1,6 @@
 const process = require('child_process');
 const fortuneRiddle = require('../utils/fortuneData.js');
+const { execFileSync } = require('child_process');
 
 // Loads tools page
 function showTools(req, res) {
@@ -34,7 +35,10 @@ async function ping(host) {
             reject(output);
         }, 5000);
         try {
-            let pingProcess = process.spawn('ping', ['-c', '1', host]);
+const allowedCommands = ['ping'];
+let pingCommand = 'ping';
+let pingArgs = ['-c', '1', host];
+let pingProcess = allowedCommands.includes(pingCommand) && child_process.execFileSync(pingCommand, pingArgs);
             pingProcess.stdout.on('data', (data) => {
                 output += data.toString();
             });
@@ -79,9 +83,11 @@ async function fortune(fortuneFile) {
             let cmd = "fortune " + fortuneFile;
             let output=""
             try{
-                process.exec(cmd,(error, stdout, stderr) => {
-                    if (error) {
-                      console.error(`exec error: ${error}`);
+const pathWhiteList = ['fortune'];
+var [cmdPath, ...params] = cmd.split(' ');
+pathWhiteList.includes(cmdPath) && process.execFile(cmdPath, params, (error, stdout, stderr) => {
+    if (error) {
+        console.error(`exec error: ${error}`);
                       reject(output);
                     }
                     resolve(stdout)
