@@ -28,7 +28,7 @@ jobs:
          VERACODE_API_KEY_ID: ${{ secrets.VERACODE_API_ID }}
          VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_API_KEY }}
         run: |
-         ./veracode static scan ./verascan/verademo-js-js.zip
+         ./veracode static scan /home/runner/work/verademo-js/verademo-js/verascan/veracode-auto-pack-verademo-js-js.zip
       
       - name: Upload SAST issues artifact
         uses: actions/upload-artifact@v4.3.3
