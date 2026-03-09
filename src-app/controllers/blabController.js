@@ -307,17 +307,15 @@ async function showBlabbers(req,res){
     console.log("User is Logged In - continuing... UA=" + req.headers["User-Agent"] + " U=" + username);
 
     /* START EXAMPLE VULNERABILITY */
-    const blabbersSql = "SELECT users.username," + " users.blab_name," + " users.created_at,"
-            + " SUM(if(listeners.listener=?, 1, 0)) as listeners,"
-            + " SUM(if(listeners.status='Active',1,0)) as listening"
-            + " FROM users LEFT JOIN listeners ON users.username = listeners.blabber"
-            + " WHERE users.username NOT IN (\"admin\",\"admin-totp\",?)" + " GROUP BY users.username" + " ORDER BY " + sort + ";";
-
-    try {
-        console.log("Getting Database connection");
-        // Find the Blabbers
-        console.log(blabbersSql);
-        let blabbersResults = await dbconnector.query(blabbersSql, [username, username])
+const blabbersSql = "SELECT users.username, " + " users.blab_name, " + " users.created_at, "
++ " SUM(if(listeners.listener=?, 1, 0)) as listeners, "
++ " SUM(if(listeners.status='Active', 1, 0)) as listening"
++ " FROM users LEFT JOIN listeners ON users.username = listeners.blabber"
++ " WHERE users.username NOT IN (\"admin\", \"admin-totp\", ?)" + " GROUP BY users.username" + " ORDER BY ?;";
+try {
+    console.log("Getting Database connection");
+    console.log(blabbersSql);
+    let blabbersResults = await dbconnector.query(blabbersSql, [username, username, sort])
         /* END EXAMPLE VULNERABILITY */
 
         let blabbers = [];
