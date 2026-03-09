@@ -153,10 +153,9 @@ async function showPasswordHint(req, res) {
 	}
 
 	try {
-		let sql = "SELECT password_hint FROM users WHERE username = '" + username + "'";
-		console.log(sql);
-
-		let result = await dbconnector.query(sql);
+let sql = "SELECT password_hint FROM users WHERE username = ?";
+console.log(sql);
+let result = await dbconnector.query(sql, [username]);
 		if (result.length > 0) {
 			let password = result[0]['password_hint'];
 			let formatString = "Username '" + username + "' has password: %s%s";
@@ -282,8 +281,8 @@ async function processRegister(req, res)
 	try {
 		console.log(isSlug(username) ? "Username is slug" : "Username is not slug");
 
-		let sql = "SELECT username FROM users WHERE username = '" + username + "'";
-		let result = await dbconnector.query(sql);
+let sql = "SELECT username FROM users WHERE username = $1";
+let result = await dbconnector.query(sql, [username]);
 		if (result.length != 0) {
 			res.locals.error = "Username '" + username + "' already exists!"
 			return res.render('register');
@@ -408,19 +407,17 @@ async function showProfile(req, res) {
 		})
 		
 		let events = [];
-		let sqlMyEvents = "select event from users_history where blabber=\"" + username
-				+ "\" ORDER BY eventid DESC; ";
-		console.log(sqlMyEvents);
-		let userHistoryResult = await dbconnector.query(sqlMyEvents);
+let sqlMyEvents = "select event from users_history where blabber=$1 ORDER BY eventid DESC; ";
+console.log(sqlMyEvents);
+let userHistoryResult = await dbconnector.query(sqlMyEvents, [username]);
 
 		await userHistoryResult.forEach((event) => {
 			events.push(event['event']);
 		})
 
-		let sql = "SELECT username, real_name, blab_name, totp_secret FROM users WHERE username = '" + username + "'";
-		console.log(sql);
-
-		let myInfoResults = await dbconnector.query(sql);
+let sql = "SELECT username, real_name, blab_name, totp_secret FROM users WHERE username = $1";
+console.log(sql);
+let myInfoResults = await dbconnector.query(sql, [username]);
 
 		res.locals.hecklers = hecklers;
 		res.locals.events = events;
