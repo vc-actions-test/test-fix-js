@@ -63,4 +63,4 @@ jobs:
           prComment: true
           files: 'all'
           codeSuggestion: false
-          createPR: true
+          createPR: false
