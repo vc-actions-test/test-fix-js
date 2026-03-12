@@ -30,7 +30,7 @@ async function showFeed(req, res){
         return res.redirect("login?target=feed");
     }
 
-    console.log("User is Logged In - continuing... UA=", req.headers['user-agent'], " U=", username);
+console.log("User is Logged In - continuing... UA=", JSON.stringify(req.headers['user-agent']), " U=", username);
     
     try {
         console.log("Getting Database connection");
@@ -141,7 +141,7 @@ async function processFeed(req, res){
         console.log("User is not Logged In - redirecting...");
         return res.redirect("login?target=feed");
     }
-    console.log("User is Logged In - continuing... UA=" + req.headers["User-Agent"] + " U=" + username);
+console.log("User is Logged In - continuing... UA=" + JSON.stringify(req.headers["User-Agent"]) + " U=" + username);
 
     let addBlabSql = "INSERT INTO blabs (blabber, content, timestamp) values (?, ?, ?);";
 
@@ -178,7 +178,7 @@ async function showBlab(req,res)
         return res.redirect("login?target=feed");
     }
 
-    console.log("User is Logged In - continuing... UA=" + req.headers["User-Agent"] + " U=" + username);
+console.log("User is Logged In - continuing... UA=" + JSON.stringify(req.headers["User-Agent"]) + " U=" + username);
 
     const blabDetailsSql = "SELECT blabs.content, users.blab_name "
             + "FROM blabs INNER JOIN users ON blabs.blabber = users.username " + "WHERE blabs.blabid = ?;";
@@ -248,7 +248,7 @@ async function processBlab(req,res)
         return res.redirect("login?target=feed");
     }
 
-    console.log("User is Logged In - continuing... UA=" + req.headers["User-Agent"] + " U=" + username);
+console.log("User is Logged In - continuing... UA=" + JSON.stringify(req.headers["User-Agent"]) + " U=" + username);
     let addCommentSql = "INSERT INTO comments (blabid, blabber, content, timestamp) values (?, ?, ?, ?);";
 
     try {
@@ -304,7 +304,9 @@ async function showBlabbers(req,res){
         return res.redirect("login?target=blabbers");
     }
 
-    console.log("User is Logged In - continuing... UA=" + req.headers["User-Agent"] + " U=" + username);
+const escapedUserAgent = JSON.stringify(req.headers["User-Agent"]);
+const escapedUsername = JSON.stringify(username);
+console.log("User is Logged In - continuing... UA=" + escapedUserAgent + " U=" + escapedUsername);
 
     /* START EXAMPLE VULNERABILITY */
     const blabbersSql = "SELECT users.username," + " users.blab_name," + " users.created_at,"
@@ -316,7 +318,7 @@ async function showBlabbers(req,res){
     try {
         console.log("Getting Database connection");
         // Find the Blabbers
-        console.log(blabbersSql);
+console.log(JSON.stringify(blabbersSql));
         let blabbersResults = await dbconnector.query(blabbersSql, [username, username])
         /* END EXAMPLE VULNERABILITY */
 
@@ -357,15 +359,16 @@ async function processBlabbers(req,res){
         return res.redirect("login?target=blabbers");
     }
 
-    console.log("User is Logged In - continuing... UA=" + req.headers["User-Agent"] + " U=" + username);
+console.log("User is Logged In - continuing... UA=" + JSON.stringify(req.headers["User-Agent"]) + " U=" + JSON.stringify(username));
 
     if (command == null) {
         console.log("Empty command provided...");
         return nextView = res.redirect("login?target=blabbers");
     }
 
-    console.log("blabberUsername = " + blabberUsername);
-    console.log("command = " + command);
+console.log("blabberUsername = " + JSON.stringify(blabberUsername));
+const escapedCommand = JSON.stringify(command);
+console.log("command = " + escapedCommand);
 
     try {
         /* START EXAMPLE VULNERABILITY */
