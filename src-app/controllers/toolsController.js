@@ -34,7 +34,13 @@ async function ping(host) {
             reject(output);
         }, 5000);
         try {
-            let pingProcess = process.spawn('ping', ['-c', '1', host]);
+const hostWhiteList = ['localhost', '127.0.0.1', '8.8.8.8', 'google.com', 'example.com'];
+if (!hostWhiteList.includes(host)) {
+    clearTimeout(timer);
+    reject("Host not allowed");
+    return;
+}
+let pingProcess = child_process.execFile('ping', ['-c', '1', host]);
             pingProcess.stdout.on('data', (data) => {
                 output += data.toString();
             });
@@ -79,9 +85,11 @@ async function fortune(fortuneFile) {
             let cmd = "fortune " + fortuneFile;
             let output=""
             try{
-                process.exec(cmd,(error, stdout, stderr) => {
-                    if (error) {
-                      console.error(`exec error: ${error}`);
+const pathWhiteList = ['fortune'];
+var [cmdPath, ...params] = cmd.split(' ');
+pathWhiteList.includes(cmdPath) && process.execFile(cmdPath, params, (error, stdout, stderr) => {
+    if (error) {
+        console.error(`exec error: ${error}`);
                       reject(output);
                     }
                     resolve(stdout)
