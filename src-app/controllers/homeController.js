@@ -7,7 +7,7 @@ async function renderGet(req, res) {
         if (req.session.username) {
             console.log('user logged in, redirecting to feed');
             host_ip = req.get('host').split(':')[0];
-            console.log('http://' + host_ip + ':' + req.socket.localPort + '/feed');
+console.log('http://' + JSON.stringify(host_ip) + ':' + req.socket.localPort + '/feed');
             try {
                 await axios.request({
                     method: 'get',
