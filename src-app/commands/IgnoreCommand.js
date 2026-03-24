@@ -14,10 +14,10 @@ class IgnoreCommand{
 		try {
 			await dbconnector.query(sqlQuery, [blabberUsername, this.username])
 
-			sqlQuery = "SELECT blab_name FROM users WHERE username = '" + blabberUsername + "'";
+sqlQuery = "SELECT blab_name FROM users WHERE username = ?";
 const escapedQuery = JSON.stringify(sqlQuery);
 console.log(escapedQuery);
-			let result = await dbconnector.query(sqlQuery);
+let result = await dbconnector.query(sqlQuery, [blabberUsername]);
 			if (result.length > 0 )        
             {
                 /* START EXAMPLE VULNERABILITY */

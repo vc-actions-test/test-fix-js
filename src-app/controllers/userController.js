@@ -84,11 +84,11 @@ async function processLogin(req, res) {
 			/* START BAD CODE */
 			// Execute the query
 			console.log("Creating the Statement");
-			const sqlQuery = "select username, password, password_hint, created_at, last_login, \
-			real_name, blab_name from users where username='" + username + "' \
-			and password='" + crypto.createHash('md5').update(password).digest("hex") + "';"
-			console.log("Execute the Statement");
-			const result = await dbconnector.query(sqlQuery);
+const sqlQuery = "select username, password, password_hint, created_at, last_login, \
+real_name, blab_name from users where username=$1 \
+and password=$2;"
+console.log("Execute the Statement");
+const result = await dbconnector.query(sqlQuery, [username, crypto.createHash('md5').update(password).digest("hex")]);
 			/* END BAD CODE */
 			/* START GOOD CODE */
 			// const sqlQuery = "select * from users where username=? and password=?;";
@@ -153,10 +153,10 @@ console.log("Entering password-hint with username: " + JSON.stringify(username))
 	}
 
 	try {
-		let sql = "SELECT password_hint FROM users WHERE username = '" + username + "'";
+let sql = "SELECT password_hint FROM users WHERE username = ?";
 console.log(JSON.stringify(sql));
 
-		let result = await dbconnector.query(sql);
+let result = await dbconnector.query(sql, [username]);
 		if (result.length > 0) {
 			let password = result[0]['password_hint'];
 			let formatString = "Username '" + username + "' has password: %s%s";
@@ -418,11 +418,11 @@ let userHistoryResult = await dbconnector.query(sqlMyEvents, [username]);
 			events.push(event['event']);
 		})
 
-		let sql = "SELECT username, real_name, blab_name, totp_secret FROM users WHERE username = '" + username + "'";
+let sql = "SELECT username, real_name, blab_name, totp_secret FROM users WHERE username = $1";
 const escapedSql = JSON.stringify(sql);
 console.log(escapedSql);
 
-		let myInfoResults = await dbconnector.query(sql);
+let myInfoResults = await dbconnector.query(sql, [username]);
 
 		res.locals.hecklers = hecklers;
 		res.locals.events = events;
