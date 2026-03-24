@@ -48,7 +48,7 @@ async function showLogin(req, res) {
 			target = "";
 		}
 
-		console.log("Entering showLogin with username " + username + " and target " + target);
+console.log("Entering showLogin with username " + JSON.stringify(username) + " and target " + JSON.stringify(target));
 
 		res.locals.target = target
 		res.locals.username = username;
@@ -84,11 +84,11 @@ async function processLogin(req, res) {
 			/* START BAD CODE */
 			// Execute the query
 			console.log("Creating the Statement");
-			const sqlQuery = "select username, password, password_hint, created_at, last_login, \
-			real_name, blab_name from users where username='" + username + "' \
-			and password='" + crypto.createHash('md5').update(password).digest("hex") + "';"
-			console.log("Execute the Statement");
-			const result = await dbconnector.query(sqlQuery);
+const sqlQuery = "select username, password, password_hint, created_at, last_login, \
+real_name, blab_name from users where username=$1 \
+and password=$2;"
+console.log("Execute the Statement");
+const result = await dbconnector.query(sqlQuery, [username, crypto.createHash('md5').update(password).digest("hex")]);
 			/* END BAD CODE */
 			/* START GOOD CODE */
 			// const sqlQuery = "select * from users where username=? and password=?;";
@@ -112,11 +112,11 @@ async function processLogin(req, res) {
 				}
 				// If user ends with totp (totp handling), add the totp login setup
 				if (username.slice(-4).toLowerCase() == 'totp') {
-					console.log("User " + username + " Has TOTP Enabled!");
+console.log("User " + JSON.stringify(username) + " Has TOTP Enabled!");
 					req.session.totp_username = user["username"];
 					nextView = "res.redirect('totp')";
 				} else {
-					console.log("Setting session username to: " + username);
+console.log("Setting session username to: " + JSON.stringify(username));
 					req.session.username = user["username"];
 					await dbconnector.query("UPDATE users SET last_login=NOW() WHERE username=?;", [user['username']])
 				}
@@ -146,21 +146,21 @@ async function processLogin(req, res) {
 
 async function showPasswordHint(req, res) {
 	const username = req.query.username
-	console.log("Entering password-hint with username: " + username);
+console.log("Entering password-hint with username: " + JSON.stringify(username));
 
 	if (!username) {
 		return res.json("No username provided, please type in your username first");
 	}
 
 	try {
-		let sql = "SELECT password_hint FROM users WHERE username = '" + username + "'";
-		console.log(sql);
+let sql = "SELECT password_hint FROM users WHERE username = ?";
+console.log(JSON.stringify(sql));
 
-		let result = await dbconnector.query(sql);
+let result = await dbconnector.query(sql, [username]);
 		if (result.length > 0) {
 			let password = result[0]['password_hint'];
 			let formatString = "Username '" + username + "' has password: %s%s";
-			console.log(formatString);
+console.log(JSON.stringify(formatString));
 			return res.json(util.format(formatString, password.slice(0, 2), '*'.repeat(password.length - 2)));
 		} else {
 			return res.json("No password found for " + username);
@@ -206,7 +206,9 @@ async function showTOTP(req, res) {
 async function processTOTP(req, res) {
 	const username = req.session.totp_username;
 	const totpCode = req.body.totpcode;
-	console.log("Entering processTOTP with username: " + username + " and totpCode: " + totpCode);
+const escapedUsername = JSON.stringify(username);
+const escapedTotpCode = JSON.stringify(totpCode);
+console.log("Entering processTOTP with username: " + escapedUsername + " and totpCode: " + escapedTotpCode);
 
 	let nextView = "res.redirect('login')";
 	let result, userRecord, totpSecret;
@@ -282,8 +284,8 @@ async function processRegister(req, res)
 	try {
 		console.log(isSlug(username) ? "Username is slug" : "Username is not slug");
 
-		let sql = "SELECT username FROM users WHERE username = '" + username + "'";
-		let result = await dbconnector.query(sql);
+let sql = "SELECT username FROM users WHERE username = $1";
+let result = await dbconnector.query(sql, [username]);
 		if (result.length != 0) {
 			res.locals.error = "Username '" + username + "' already exists!"
 			return res.render('register');
@@ -332,7 +334,7 @@ async function processRegisterFinish(req, res) {
 		query += "'" + blabName + "'";
 		query += ");";
 		// START BAD CODE
-		console.log(query);
+console.log(JSON.stringify(query));
 		// END BAD CODE 
 
 		await dbconnector.query(query);
@@ -408,19 +410,19 @@ async function showProfile(req, res) {
 		})
 		
 		let events = [];
-		let sqlMyEvents = "select event from users_history where blabber=\"" + username
-				+ "\" ORDER BY eventid DESC; ";
-		console.log(sqlMyEvents);
-		let userHistoryResult = await dbconnector.query(sqlMyEvents);
+let sqlMyEvents = "select event from users_history where blabber=$1 ORDER BY eventid DESC; ";
+console.log(sqlMyEvents);
+let userHistoryResult = await dbconnector.query(sqlMyEvents, [username]);
 
 		await userHistoryResult.forEach((event) => {
 			events.push(event['event']);
 		})
 
-		let sql = "SELECT username, real_name, blab_name, totp_secret FROM users WHERE username = '" + username + "'";
-		console.log(sql);
+let sql = "SELECT username, real_name, blab_name, totp_secret FROM users WHERE username = $1";
+const escapedSql = JSON.stringify(sql);
+console.log(escapedSql);
 
-		let myInfoResults = await dbconnector.query(sql);
+let myInfoResults = await dbconnector.query(sql, [username]);
 
 		res.locals.hecklers = hecklers;
 		res.locals.events = events;
@@ -456,7 +458,7 @@ async function processProfile(req, response) {
 		return response.redirect("login?target=profile");
 	}
 
-	console.log("User is Logged In - continuing... UA=" + req.get("user-agent") + " U=" + sessionUsername);
+console.log("User is Logged In - continuing... UA=" + JSON.stringify(req.get("user-agent")) + " U=" + JSON.stringify(sessionUsername));
 
 	let oldUsername = sessionUsername;
 
@@ -482,7 +484,7 @@ async function processProfile(req, response) {
 				console.log("Preparing the duplicate username check Prepared Statement");
 				let result = await dbconnector.query("SELECT username FROM users WHERE username=?", [newUsername])
 				if (result.length != 0) {
-					console.info("Username: " + username + " already exists. Try again.");
+console.info("Username: " + JSON.stringify(username) + " already exists. Try again.");
 					exists = true;
 				}
 			} catch (err) {
@@ -541,7 +543,7 @@ async function processProfile(req, response) {
 				if (oldImage) {
 					extension = oldImage.substring(oldImage.lastIndexOf("."));
 
-					console.log ("Renaming profile image from " + oldImage + " to " + newUsername + extension);
+console.log ("Renaming profile image from " + JSON.stringify(oldImage) + " to " + JSON.stringify(newUsername) + extension);
 					oldName = image_dir + oldImage;
 					newName = image_dir + newUsername + extension;
 
@@ -595,7 +597,7 @@ async function processProfile(req, response) {
 			let extension = await file.filename.substring(file.filename.lastIndexOf("."));
 			let filepath = image_dir + username + extension;
 
-			console.log("Saving new profile image: " + filepath);
+console.log("Saving new profile image: " + JSON.stringify(filepath));
 
 			fs.rename(file.path, filepath, (err) => { if (err) throw err; })
 		} catch (err) {
@@ -629,10 +631,10 @@ async function downloadImage(req, res) {
         console.log("User is not Logged In - redirecting...");
         return res.redirect("login?target=feed");
     }
-    console.log("User is Logged In - continuing... UA=" + req.headers["User-Agent"] + " U=" + username);
+console.log("User is Logged In - continuing... UA=" + JSON.stringify(req.headers["User-Agent"]) + " U=" + username);
 
 	let filepath = image_dir + imageName;
-	console.log("Fetching profile image: " + filepath);
+console.log("Fetching profile image: " + JSON.stringify(filepath));
 	try {
 		await res.download(filepath);
 	} catch (err) {
