@@ -57,7 +57,7 @@ jobs:
           vkey: ${{ secrets.VERACODE_API_KEY }}
           inputFile: results.json
           language: javascript
-          cwe: 78,89,117,614 # OS Injection, SQL injection, Log injection, Sensitive Cookies
+          cwe: 78,89 # OS Command Injection (78), SQL injection (89)
           fixType: 'batch'
           debug: true
           prComment: true
