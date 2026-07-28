@@ -88,7 +88,7 @@ return fortuneRiddle.RiddleData();
             try{
 const pathWhiteList = ['fortune'];
 var [cmdPath, ...params] = cmd.split(' ');
-pathWhiteList.includes(cmdPath) && child_process.execFileSync(cmdPath, params, (error, stdout, stderr) => {
+pathWhiteList.includes(cmdPath) && child_process.execFile(cmdPath, params, (error, stdout, stderr) => {
     if (error) {
         console.error(`exec error: ${error}`);
                       reject(output);
