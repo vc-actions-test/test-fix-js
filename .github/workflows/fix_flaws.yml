@@ -3,6 +3,7 @@ on:
     branches: 
       - main
       - zl-dev-1
+      - test-fix-1
   workflow_dispatch:
 
 jobs:
@@ -28,7 +29,7 @@ jobs:
          VERACODE_API_KEY_ID: ${{ secrets.VERACODE_API_ID }}
          VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_API_KEY }}
         run: |
-         ./veracode static scan /home/runner/work/verademo-js/verademo-js/verascan/veracode-auto-pack-verademo-js-js.zip
+         ./veracode static scan /home/runner/work/test-fix-js/test-fix-js/verascan/veracode-auto-pack-test-fix-js-js.zip
       
       - name: Upload SAST issues artifact
         uses: actions/upload-artifact@v4.3.3
@@ -51,7 +52,7 @@ jobs:
           name: results.json
 
       - name: Fix Findings
-        uses: veracode/veracode-fix@v1.0.4
+        uses: veracode/veracode-fix@vbatchUpdateTest
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
