@@ -52,7 +52,7 @@ jobs:
           name: results.json
 
       - name: Fix Findings
-        uses: veracode/veracode-fix@vbatchUpdateTest
+        uses: veracode/veracode-fix@batchUpdateTest
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
